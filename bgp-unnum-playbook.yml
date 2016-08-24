@@ -1,0 +1,36 @@
+---
+- hosts: all
+  remote_user: root
+  vars:
+  tasks:
+   - name:  copy daemons file in /etc/quagga 
+     sudo:  yes
+     template:  src=quagga.daemons_file dest=/etc/quagga/daemons
+
+   - name:  copy switch01 Quagga.conf
+     sudo:  yes
+     copy:  src=switch01-Quagga.conf dest=/etc/quagga/Quagga.conf
+     when:  inventory_hostname == "switch01"
+
+   - name:  copy switch02 Quagga.conf
+     sudo:  yes
+     copy:  src=switch02-Quagga.conf dest=/etc/quagga/Quagga.conf
+     when:  inventory_hostname == "switch02"
+
+   - name:  copy switch01 interfaces file 
+     sudo:  yes
+     template:  src=switch01-interfaces dest=/etc/network/interfaces
+     when:  inventory_hostname == "switch01"
+
+   - name:  copy switch02 interfaces file        
+     sudo:  yes
+     template:  src=switch02-interfaces dest=/etc/network/interfaces
+     when:  inventory_hostname == "switch02"  
+
+   - name:  restart Quagga
+     sudo:  yes
+     service:  name=quagga state=restarted
+
+   - name:  Reload interfaces file
+     sudo:  yes
+     command: /sbin/ifreload -a 
